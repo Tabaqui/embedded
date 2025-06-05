@@ -3,7 +3,7 @@
 
 use cortex_m_rt::entry;
 use panic_halt as _;
-use stm32f1xx_hal::pac as _;
+use stm32f1xx_hal::pac as Pa;
 
 
 #[entry]
