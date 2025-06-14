@@ -362,6 +362,7 @@ dependencies = [
  "cortex-m-rt",
  "defmt",
  "defmt-rtt",
+ "fugit",
  "panic-halt",
  "stm32f4xx-hal",
 ]

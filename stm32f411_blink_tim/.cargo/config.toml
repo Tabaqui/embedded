@@ -12,3 +12,9 @@ rustflags = [
 [env]
 DEFMT_LOG="info"
 DEFMT_RTT_BUFFER_SIZE = "1024"
+
+[profile.release]
+debug = 2
+codegen-units = 1
+lto = "fat"
+opt-level= "z"
