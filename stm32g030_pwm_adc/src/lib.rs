@@ -1,45 +1,52 @@
 #![no_std]
 
-const P: f64 = 0.5;
+use cortex_m::prelude::_embedded_hal_Pwm;
+use embassy_stm32::{
+    peripherals::TIM1,
+    timer::{
+        simple_pwm::{PwmPin, SimplePwm},
+        Ch1,
+    },
+    Peri,
+};
 
-const TARGET_VOLTS: f32 = 2500.0;
+const P: u32 = 50;
 
-pub struct PidCalc {
-    volts: f32,
-    duty: u16,
+const TARGET_VOLTS: f32 = 2700.0;
+const MAX_DUTY: u16 = 1000;
+// const THEN_MAX_
+
+pub struct MotorDriver<'a> {
+    mv: f32,
+    // duty: u16,
+    pwm: SimplePwm<'a, TIM1>,
 }
 
-impl PidCalc {
-    pub fn new() -> Self {
-        PidCalc {
-            volts: 0.0,
-            duty: 200,
+impl<'a> MotorDriver<'a> {
+    fn new(pwm: SimplePwm<'a, TIM1>) -> Self {
+        MotorDriver {
+            mv: 0.0,
+            // duty: 0,
+            pwm: pwm,
         }
     }
-
-    pub fn update_rpm(&mut self, back_volts: f32) -> i32 {
-        // let income = new_value - self.value;
-        self.volts = back_volts;
-        self.update_duty()
+    fn start(&mut self) -> Self {
+        self.pwm.ch1().set_duty_cycle_percent(20);
+        todo!("measure then set mv");
     }
 
-    fn update_duty(&mut self) -> i32 {
-        let mis = TARGET_VOLTS - self.volts;
+    fn _mv(&self, to_mv: f32) {
+        let to_duty = 500;
+        todo!("to_mv to to_duty");
 
-        if self.duty > 1000 || mis > -20.0 && mis < 20.0 {
-            return 0;
-        }
+        let miss = to_duty - self.pwm.ch1().current_duty_cycle() as u32;
 
-        return if mis > 0.0 {
-            self.duty += 1;
-            1
-        } else {
-            self.duty -= 1;
-            -1
-        };
+        let proportional = P * miss / 100; // проценты
+
+        self.pwm.ch1().set_duty_cycle(proportional);
     }
+}
 
-    pub fn duty(&self) -> u16 {
-        self.duty
-    }
+enum DutyError {
+    MaxMVToHigh,
 }
